@@ -1,0 +1,19 @@
+# Source
+src/
+test/
+
+# Config files
+.gitignore
+.npmignore
+rollup.config.js
+tsconfig.json
+vite.config.ts
+
+# Development
+node_modules/
+.vscode/
+.idea/
+
+# Build artifacts
+*.log
+.DS_Store
