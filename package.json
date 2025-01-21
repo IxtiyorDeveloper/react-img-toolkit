@@ -24,12 +24,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codeium/react-img-toolkit"
+    "url": "https://github.com/IxtiyorDeveloper/react-img-toolkit"
   },
   "bugs": {
-    "url": "https://github.com/codeium/react-img-toolkit/issues"
+    "url": "https://github.com/IxtiyorDeveloper/react-img-toolkit/issues"
   },
-  "homepage": "https://github.com/codeium/react-img-toolkit#readme",
+  "homepage": "https://github.com/IxtiyorDeveloper/react-img-toolkit#readme",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

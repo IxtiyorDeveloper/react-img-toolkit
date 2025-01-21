@@ -197,10 +197,27 @@ function useImageStatus(
 
 ## Development
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start development server: `npm run dev`
-4. Run tests: `npm test`
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/IxtiyorDeveloper/react-img-toolkit.git
+   cd react-img-toolkit
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+4. Run tests:
+   ```bash
+   npm test
+   ```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
