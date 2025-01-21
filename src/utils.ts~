@@ -21,16 +21,16 @@ export const extractImageUrlsFromData = (data: any): string[] => {
     data.forEach((item) => {
       urls = urls.concat(extractImageUrlsFromData(item));
     });
-  } else if (typeof data === "object" && data !== null) {
+  } else if (typeof data === 'object' && data !== null) {
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
         urls = urls.concat(extractImageUrlsFromData(data[key]));
       }
     }
-  } else if (typeof data === "string") {
+  } else if (typeof data === 'string') {
     if (isHtmlString(data)) {
       urls = urls.concat(extractImageUrlsFromHtml(data));
-    } else if (data.startsWith("http")) {
+    } else if (data.startsWith('http')) {
       urls.push(data);
     }
   }
@@ -54,6 +54,6 @@ export const preloadImages = async (imageUrls: string[]): Promise<void> => {
   try {
     await Promise.all(promises);
   } catch (error) {
-    console.error("Some images failed to load.");
+    console.error('Some images failed to load.');
   }
 };

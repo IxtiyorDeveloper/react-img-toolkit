@@ -20,23 +20,19 @@ npm install react-img-toolkit
 ## Usage
 
 ### Image Preloader Component
-### data can be any structured, ImagePreloader will extract image URLs from it.
 
 ```tsx
 import { ImagePreloader } from 'react-img-toolkit';
 
 function Gallery() {
-   const data = {
-      images: [
-         'https://example.com/image1.jpg',
-         'https://example.com/image2.jpg',
-      ],
-      otherData: 'Hello World!',
-   };
+  const images = [
+    'https://example.com/image1.jpg',
+    'https://example.com/image2.jpg'
+  ];
 
-   return (
+  return (
     <ImagePreloader
-      data={data}
+      urls={images}
       onSuccess={() => console.log('All images loaded!')}
       onError={(error) => console.error('Failed to load:', error)}
     >

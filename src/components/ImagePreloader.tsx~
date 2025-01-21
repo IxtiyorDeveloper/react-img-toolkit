@@ -31,3 +31,4 @@ export const ImagePreloader: React.FC<ImagePreloaderProps> = ({
 
   return <>{children}</>;
 };
+
