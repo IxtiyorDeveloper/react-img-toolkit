@@ -141,12 +141,12 @@ function ImageWithStatus() {
 
 ### ImagePreloader Component
 
-| Prop | Type | Description |
-|------|------|-------------|
-| urls | string[] | Array of image URLs to preload |
-| onSuccess | () => void | Callback when all images are loaded |
-| onError | (error: Error) => void | Callback when an error occurs |
-| children | ReactNode | Content to render |
+| Prop      | Type                   | Description                         |
+|-----------|------------------------|-------------------------------------|
+| data      | any                    | Any structured data.                |
+| onSuccess | () => void             | Callback when all images are loaded |
+| onError   | (error: Error) => void | Callback when an error occurs       |
+| children  | ReactNode              | Content to render                   |
 
 ### useImagePreloader Hook
 
