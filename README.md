@@ -106,15 +106,57 @@ Cache images for faster subsequent loads:
 import { useImageCache } from 'react-img-toolkit';
 
 function CachedImage() {
-  const { cachedSrc, loading, isCached } = useImageCache(
-    'https://example.com/image.jpg'
-  );
+  const { cachedSrc, loading, isCached } = useImageCache('https://example.com/image.jpg');
 
   if (loading) return <div>Loading...</div>;
 
   return <img src={cachedSrc} alt="Cached image" />;
 }
 ```
+
+#### useImageLoad
+
+Load images with custom configurations, particularly useful for canvas applications:
+
+```tsx
+import { useImageLoad } from 'react-img-toolkit';
+
+function CanvasImage() {
+  const { image, isLoading, error } = useImageLoad({
+    url: 'https://example.com/image.jpg',
+    crossOrigin: 'anonymous',
+    referrerPolicy: 'no-referrer'
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <canvas 
+        ref={canvasRef => {
+          if (canvasRef && image) {
+            const ctx = canvasRef.getContext('2d');
+            if (ctx) {
+              canvasRef.width = image.width;
+              canvasRef.height = image.height;
+              ctx.drawImage(image, 0, 0);
+            }
+          }
+        }}
+      />
+    </div>
+  );
+}
+```
+
+The `useImageLoad` hook is particularly useful when you need direct access to the DOM image element, such as when working with canvas or WebGL. It provides:
+
+- Full control over image loading configuration
+- Cross-origin resource sharing (CORS) settings
+- Referrer policy configuration
+- Direct access to the HTMLImageElement
+- Loading state and error handling
 
 #### useImageStatus
 
@@ -125,13 +167,10 @@ import { useImageStatus } from 'react-img-toolkit';
 
 function ImageWithStatus() {
   const status = useImageStatus('https://example.com/image.jpg');
-
   return (
     <div>
       <p>Status: {status}</p>
-      {status === 'loaded' && (
-        <img src="https://example.com/image.jpg" alt="Status tracked" />
-      )}
+      {status === 'loaded' && <img src="https://example.com/image.jpg" alt="Loaded" />}
     </div>
   );
 }
@@ -188,6 +227,22 @@ function useImageCache(
   cachedSrc: string | null;
   loading: boolean;
   isCached: boolean;
+};
+```
+
+### useImageLoad Hook
+
+```typescript
+function useImageLoad(
+  options: {
+    url: string;
+    crossOrigin?: string;
+    referrerPolicy?: string;
+  }
+): {
+  image: HTMLImageElement | null;
+  isLoading: boolean;
+  error: Error | null;
 };
 ```
 

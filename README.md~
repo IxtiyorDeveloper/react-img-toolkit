@@ -1,15 +1,19 @@
 # React Image Toolkit
 
-A lightweight React library for optimizing image loading through preloading, lazy loading, and caching capabilities.
+## useImageLoad
+
+A custom hook for loading images efficiently. It handles loading states and errors, providing a simple interface for image loading in React components.
 
 ## Features
 
 - 🚀 **Image Preloading**: Load images in advance for instant display
+- **useImageLoad**: A custom hook that simplifies image loading, providing a straightforward interface to manage loading states and errors. It allows you to load images efficiently and track their loading status, making it easier to handle errors and optimize image loading in your React applications.
 - 🎯 **Lazy Loading**: Load images only when they enter the viewport
 - 💾 **Image Caching**: Cache images for faster subsequent loads
 - 📊 **Status Tracking**: Monitor image loading states
 - 🎨 **TypeScript Support**: Full TypeScript support with type definitions
 - 🪶 **Lightweight**: No external dependencies except React
+- Updated URL handling to remove duplicates using array filtering instead of Set.
 
 ## Installation
 
@@ -137,6 +141,26 @@ function ImageWithStatus() {
 }
 ```
 
+#### useImageLoad
+
+Load images efficiently:
+
+```tsx
+import { useImageLoad } from 'react-img-toolkit';
+
+function EfficientImage() {
+  const { loaded, error } = useImageLoad('https://example.com/image.jpg');
+
+  if (error) return <div>Error loading image</div>;
+
+  return (
+    <div>
+      {loaded && <img src="https://example.com/image.jpg" alt="Efficiently loaded" />}
+    </div>
+  );
+}
+```
+
 ## API Reference
 
 ### ImagePreloader Component
@@ -197,6 +221,17 @@ function useImageCache(
 function useImageStatus(
   src: string
 ): 'idle' | 'loading' | 'loaded' | 'error';
+```
+
+### useImageLoad Hook
+
+```typescript
+function useImageLoad(
+  src: string
+): {
+  loaded: boolean;
+  error: Error | null;
+};
 ```
 
 ## Development
