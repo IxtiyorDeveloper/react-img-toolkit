@@ -10,6 +10,7 @@ A lightweight React library for optimizing image loading through preloading, laz
 - 📊 **Status Tracking**: Monitor image loading states
 - 🎨 **TypeScript Support**: Full TypeScript support with type definitions
 - 🪶 **Lightweight**: No external dependencies except React
+- 🖼️ **Custom Configurations**: Supports cross-origin, referrer policies, and direct access to the HTMLImageElement for advanced use cases.
 
 ## Installation
 
