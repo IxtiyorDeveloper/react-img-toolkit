@@ -29,22 +29,24 @@ const testData = {
   },
 };
 
-export const TestApp: React.FC = () => {
+const TestApp: React.FC = () => {
   // Test useImagePreloader with both URLs and data
   const { imageUrls, count } = useImagePreloader({
-    urls: testImages.slice(0, 2),
     data: testData,
     onSuccess: () => console.log("All images preloaded successfully"),
     onError: (error) => console.error("Failed to preload images:", error),
   });
 
   // Test useImageStatus for a single image
-  const imageStatus = useImageStatus(testImages[0]);
+  const imageStatus = useImageStatus({ src: testImages[0] });
 
   // Test useLazyImage
-  const { isIntersecting, isLoaded, ref } = useLazyImage(testImages[1], {
-    threshold: 0.1,
-    rootMargin: "100px",
+  const { isIntersecting, isLoaded, ref } = useLazyImage({
+    src: testImages[1],
+    options: {
+      threshold: 0.1,
+      rootMargin: "100px",
+    },
   });
 
   // Test useImageCache
@@ -52,7 +54,7 @@ export const TestApp: React.FC = () => {
     cachedSrc,
     loading: cacheLoading,
     isCached,
-  } = useImageCache(testImages[2]);
+  } = useImageCache({ src: testImages[2] });
 
   // Test useImageLoad
   const {
@@ -75,7 +77,7 @@ export const TestApp: React.FC = () => {
         <ImagePreloader
           urls={testImages.slice(0, 2)} // URLs to preload
           data={testData} // Data to extract image URLs from
-          onSuccess={() => console.log("All")}
+          onSuccess={() => console.log("All images preloaded successfully")}
           onError={(error) => console.error("Failed to preload images:", error)}
         >
           <div className="debug-info">
@@ -238,3 +240,5 @@ export const TestApp: React.FC = () => {
     </div>
   );
 };
+
+export default TestApp;

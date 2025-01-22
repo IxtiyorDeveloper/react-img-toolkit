@@ -2,15 +2,13 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { extractImageUrlsFromData, preloadImages } from "../utils";
 
 interface ImagePreloaderProps {
-  urls?: string[]; // Optional array of URLs to preload
-  data?: Record<string, any>; // Generic object to extract URLs from
+  data?: any; // Generic object to extract URLs from
   onSuccess?: () => void; // Callback on successful preload
   onError?: (error: Error) => void; // Callback on preload error
   children: React.ReactNode; // Child components to render
 }
 
 export const ImagePreloader: React.FC<ImagePreloaderProps> = ({
-  urls = [],
   data = {},
   onSuccess,
   onError,
@@ -19,8 +17,8 @@ export const ImagePreloader: React.FC<ImagePreloaderProps> = ({
   // Memoize the combined list of URLs to avoid unnecessary computations
   const allUrls = useMemo(() => {
     const urlsFromData = data ? extractImageUrlsFromData(data) : [];
-    return Array.from(new Set([...urls, ...urlsFromData])); // Convert Set to Array
-  }, [urls, data]);
+    return Array.from(new Set(urlsFromData)); // Convert Set to Array
+  }, [data]);
 
   // Ref to track if the images have been preloaded already
   const preloadedRef = useRef(false);

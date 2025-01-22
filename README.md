@@ -57,10 +57,14 @@ Preload multiple images and track their loading status:
 import { useImagePreloader } from 'react-img-toolkit';
 
 function Gallery() {
-  const { imageUrls, count } = useImagePreloader([
+  const { imageUrls, count } = useImagePreloader({
+    data: [
     'https://example.com/image1.jpg',
     'https://example.com/image2.jpg'
-  ]);
+  ],
+    onSuccess: () => console.log("All images preloaded successfully"),
+    onError: (error) => console.error("Failed to preload images:", error),
+  });
 
   return (
     <div>
@@ -81,13 +85,13 @@ Load images only when they enter the viewport:
 import { useLazyImage } from 'react-img-toolkit';
 
 function LazyImage() {
-  const { ref, isIntersecting, isLoaded } = useLazyImage(
-    'https://example.com/large-image.jpg',
-    {
-      threshold: 0.1,
-      rootMargin: '50px'
+  const { ref, isIntersecting, isLoaded } = useLazyImage({
+    src: 'https://example.com/large-image.jpg',
+    options: {
+      threshold: 0.5,
+      rootMargin: '200px',
     }
-  );
+  });
 
   return (
     <div ref={ref}>
@@ -107,7 +111,9 @@ Cache images for faster subsequent loads:
 import { useImageCache } from 'react-img-toolkit';
 
 function CachedImage() {
-  const { cachedSrc, loading, isCached } = useImageCache('https://example.com/image.jpg');
+  const { cachedSrc, loading, isCached } = useImageCache({
+    src: 'https://example.com/image.jpg',
+  });
 
   if (loading) return <div>Loading...</div>;
 
@@ -116,6 +122,14 @@ function CachedImage() {
 ```
 
 #### useImageLoad
+
+The `useImageLoad` hook is particularly useful when you need direct access to the DOM image element, such as when working with canvas or WebGL. It provides:
+
+- Full control over image loading configuration
+- Cross-origin resource sharing (CORS) settings
+- Referrer policy configuration
+- Direct access to the HTMLImageElement
+- Loading state and error handling
 
 Load images with custom configurations, particularly useful for canvas applications:
 
@@ -151,14 +165,6 @@ function CanvasImage() {
 }
 ```
 
-The `useImageLoad` hook is particularly useful when you need direct access to the DOM image element, such as when working with canvas or WebGL. It provides:
-
-- Full control over image loading configuration
-- Cross-origin resource sharing (CORS) settings
-- Referrer policy configuration
-- Direct access to the HTMLImageElement
-- Loading state and error handling
-
 #### useImageStatus
 
 Track the loading status of an image:
@@ -167,7 +173,7 @@ Track the loading status of an image:
 import { useImageStatus } from 'react-img-toolkit';
 
 function ImageWithStatus() {
-  const status = useImageStatus('https://example.com/image.jpg');
+  const status = useImageStatus({ src: 'https://example.com/image.jpg' });
   return (
     <div>
       <p>Status: {status}</p>
@@ -184,7 +190,6 @@ function ImageWithStatus() {
 | Prop      | Type                   | Description                         |
 |-----------|------------------------|-------------------------------------|
 | data      | any                    | Any structured data.                |
-| urls      | string[]               | array of image urls                 |
 | onSuccess | () => void             | Callback when all images are loaded |
 | onError   | (error: Error) => void | Callback when an error occurs       |
 | children  | ReactNode              | Content to render                   |
@@ -194,73 +199,99 @@ function ImageWithStatus() {
 ```typescript
 
 interface ImagePreloaderProps {
-   urls?: string[]; // Optional array of URLs to preload
    data?: Record<string, any>; // Generic object to extract URLs from
    onSuccess?: () => void; // Callback on successful preload
    onError?: (error: Error) => void; // Callback on preload error
    children: React.ReactNode; // Child components to render
 }
+
+interface ImagePreloaderState {
+  imageUrls: string[];
+  count: number;
+}
+
 function useImagePreloader({
-    urls = [],
     data = {},
     onSuccess,
     onError,
-    }: UseImagePreloaderProps = {}): {
-  imageUrls: string[];
-  count: number;
-};
+    }: UseImagePreloaderProps = {}): ImagePreloaderState;
 ```
 
 ### useLazyImage Hook
 
 ```typescript
-function useLazyImage(
-  src: string,
+interface UseLazyImageProps {
+  src: string;
   options?: {
     threshold?: number;
     rootMargin?: string;
-  }
-): {
+  };
+}
+
+interface UseLazyImageResult {
   ref: RefObject<HTMLElement>;
   isIntersecting: boolean;
   isLoaded: boolean;
-};
+}
+
+function useLazyImage({
+  src,
+  options,
+}: UseLazyImageProps): UseLazyImageResult;
 ```
 
 ### useImageCache Hook
 
 ```typescript
-function useImageCache(
-  src: string
-): {
+interface UseImageCacheProps {
+  src: string;
+}
+
+interface UseImageCacheResult {
   cachedSrc: string | null;
   loading: boolean;
   isCached: boolean;
-};
+}
+function useImageCache({ src }: UseImageCacheProps): UseImageCacheResult;
 ```
-
 ### useImageLoad Hook
 
 ```typescript
-function useImageLoad(
-  options: {
-    url: string;
-    crossOrigin?: string;
-    referrerPolicy?: string;
-  }
-): {
+interface UseImageLoadProps {
+  url: string;
+  crossOrigin?: HTMLImageElement['crossOrigin'];
+  referrerPolicy?: HTMLImageElement['referrerPolicy'];
+}
+
+interface UseImageLoadResult {
   image: HTMLImageElement | null;
   isLoading: boolean;
   error: Error | null;
-};
+}
+
+function useImageLoad(
+{
+  url,
+  crossOrigin,
+  referrerPolicy
+}: UseImageLoadProps
+): UseImageLoadResult;
 ```
 
 ### useImageStatus Hook
 
 ```typescript
+interface UseImageStatusProps {
+  src: string;
+}
+
+interface UseImageStatusResult {
+  status: 'idle' | 'loading' | 'loaded' | 'error';
+}
+
 function useImageStatus(
-  src: string
-): 'idle' | 'loading' | 'loaded' | 'error';
+  { src }: UseImageStatusProps
+): UseImageStatusResult;
 ```
 
 ## Development

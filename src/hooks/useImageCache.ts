@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 // Global cache to store loaded image URLs
 const imageCache = new Map<string, boolean>();
 
-export const useImageCache = (src: string) => {
+export const useImageCache = ({ src }: { src: string }) => {
   const [loading, setLoading] = useState(!imageCache.has(src));
   const [isCached, setIsCached] = useState(imageCache.has(src));
 
@@ -37,6 +37,6 @@ export const useImageCache = (src: string) => {
   return {
     cachedSrc: src,
     loading,
-    isCached
+    isCached,
   };
 };
