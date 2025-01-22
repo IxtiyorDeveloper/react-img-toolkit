@@ -184,6 +184,7 @@ function ImageWithStatus() {
 | Prop      | Type                   | Description                         |
 |-----------|------------------------|-------------------------------------|
 | data      | any                    | Any structured data.                |
+| urls      | string[]               | array of image urls                 |
 | onSuccess | () => void             | Callback when all images are loaded |
 | onError   | (error: Error) => void | Callback when an error occurs       |
 | children  | ReactNode              | Content to render                   |
@@ -191,13 +192,20 @@ function ImageWithStatus() {
 ### useImagePreloader Hook
 
 ```typescript
-function useImagePreloader(
-  urls: string[],
-  options?: {
-    onSuccess?: () => void;
-    onError?: (error: Error) => void;
-  }
-): {
+
+interface ImagePreloaderProps {
+   urls?: string[]; // Optional array of URLs to preload
+   data?: Record<string, any>; // Generic object to extract URLs from
+   onSuccess?: () => void; // Callback on successful preload
+   onError?: (error: Error) => void; // Callback on preload error
+   children: React.ReactNode; // Child components to render
+}
+function useImagePreloader({
+    urls = [],
+    data = {},
+    onSuccess,
+    onError,
+    }: UseImagePreloaderProps = {}): {
   imageUrls: string[];
   count: number;
 };

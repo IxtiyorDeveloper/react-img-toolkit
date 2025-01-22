@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { extractImageUrlsFromData } from "../utils";
 
 interface UseImagePreloaderProps {
@@ -16,6 +16,8 @@ export const useImagePreloader = ({
 }: UseImagePreloaderProps = {}) => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [count, setCount] = useState(0);
+  // Ref to persist stateUpdated across renders
+  const stateUpdatedRef = useRef(false);
 
   const uniqueUrls = useMemo(() => {
     const urlsFromData = data ? extractImageUrlsFromData(data) : [];
@@ -41,18 +43,12 @@ export const useImagePreloader = ({
   }, []);
 
   useEffect(() => {
-    // Extract URLs from data if provided
-    const urlsFromData = data ? extractImageUrlsFromData(data) : [];
-    const allUrls = [...(urls || []), ...urlsFromData].filter(
-      (url, index, self) => self.indexOf(url) === index,
-    ); // Remove duplicates
-    const uniqueUrls = allUrls.filter(
-      (url, index, self) => self.indexOf(url) === index,
-    );
+    // Filter out URLs that are already in imageUrls to prevent reloading cached ones
+    const urlsToLoad = uniqueUrls.filter((url) => !imageUrls.includes(url));
 
-    if (!uniqueUrls.length) return;
+    if (!urlsToLoad.length) return; // If no new URLs to load, exit early
 
-    const images = uniqueUrls.map((url) => {
+    const images = urlsToLoad.map((url) => {
       return new Promise<string>((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(url);
@@ -63,14 +59,16 @@ export const useImagePreloader = ({
 
     Promise.all(images)
       .then((loadedUrls) => {
-        // Update the state only after all images are loaded
-        updateImageUrls(loadedUrls);
-        onSuccess?.();
+        if (!stateUpdatedRef.current) {
+          updateImageUrls(loadedUrls);
+          onSuccess?.();
+          stateUpdatedRef.current = true; // Set the ref to true to prevent further updates
+        }
       })
       .catch((error) => {
         onError?.(error);
       });
-  }, [uniqueUrls, updateImageUrls]);
+  }, [uniqueUrls, imageUrls, updateImageUrls, onSuccess, onError]);
 
   return { imageUrls, count };
 };

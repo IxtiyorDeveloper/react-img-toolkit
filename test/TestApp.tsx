@@ -5,6 +5,7 @@ import {
   useLazyImage,
   useImageCache,
   useImageLoad,
+  ImagePreloader,
 } from "../src";
 
 const testImages = [
@@ -64,20 +65,35 @@ export const TestApp: React.FC = () => {
     referrerPolicy: "no-referrer",
   });
 
-  // Test useImageLoad
-  const {
-    image: image2,
-    isLoading: imageLoading2,
-    error: error2,
-  } = useImageLoad({
-    url: testImages[4],
-    crossOrigin: "anonymous",
-    referrerPolicy: "no-referrer",
-  });
-
   return (
     <div className="container">
       <h1>React Image Preloader Test Suite</h1>
+
+      {/* ImagePreloader Test */}
+      <section className="section">
+        <h2>ImagePreloader Test (URLs + Data)</h2>
+        <ImagePreloader
+          urls={testImages.slice(0, 2)} // URLs to preload
+          data={testData} // Data to extract image URLs from
+          onSuccess={() => console.log("All")}
+          onError={(error) => console.error("Failed to preload images:", error)}
+        >
+          <div className="debug-info">
+            <p>Total Images Preloaded: 5</p>{" "}
+            {/* Assume all images have been preloaded */}
+            <pre style={{ fontSize: "0.8em" }}>
+              {JSON.stringify({ totalImages: 5 }, null, 2)}
+            </pre>
+          </div>
+          <div className="image-grid">
+            {testImages.map((url, index) => (
+              <div key={index} className="image-container">
+                <img src={url} alt={`Preloaded ${index + 1}`} />
+              </div>
+            ))}
+          </div>
+        </ImagePreloader>
+      </section>
 
       {/* useImagePreloader Test */}
       <section className="section">
@@ -210,42 +226,6 @@ export const TestApp: React.FC = () => {
                       canvasRef.width = image.width;
                       canvasRef.height = image.height;
                       ctx.drawImage(image, 0, 0);
-                    }
-                  }
-                }}
-                style={{ maxWidth: "100%", height: "auto" }}
-              />
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* useImageLoad Test */}
-      <section className="section">
-        <h2>useImageLoad Test (Canvas)</h2>
-        <div className="debug-info">
-          <p>
-            Status:
-            <span className={`status ${imageLoading2 ? "pending" : "success"}`}>
-              {imageLoading2 ? "Loading..." : "Ready"}
-            </span>
-            {error2 && (
-              <span className="status error">Error: {error2.message}</span>
-            )}
-          </p>
-        </div>
-        <div className="image-container">
-          {image2 && (
-            <div>
-              <p>Image loaded and rendered to canvas:</p>
-              <canvas
-                ref={(canvasRef) => {
-                  if (canvasRef && image2) {
-                    const ctx = canvasRef.getContext("2d");
-                    if (ctx) {
-                      canvasRef.width = image2.width;
-                      canvasRef.height = image2.height;
-                      ctx.drawImage(image2, 0, 0);
                     }
                   }
                 }}
