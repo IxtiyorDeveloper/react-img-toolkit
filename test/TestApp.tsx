@@ -75,8 +75,7 @@ const TestApp: React.FC = () => {
       <section className="section">
         <h2>ImagePreloader Test (URLs + Data)</h2>
         <ImagePreloader
-          urls={testImages.slice(0, 2)} // URLs to preload
-          data={testData} // Data to extract image URLs from
+          data={testImages} // Data to extract image URLs from
           onSuccess={() => console.log("All images preloaded successfully")}
           onError={(error) => console.error("Failed to preload images:", error)}
         >
