@@ -1,8 +1,31 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { extractImageUrlsFromData } from "../utils";
 
+// Utility to check if an image is cached
+async function isImageCached(url: string): Promise<boolean> {
+  const cache = await caches.open("image-preloader-cache");
+  const cachedResponse = await cache.match(url);
+  return !!cachedResponse;
+}
+
+// Utility to cache images
+async function cacheImages(urls: string[]) {
+  const cache = await caches.open("image-preloader-cache");
+  await Promise.all(
+    urls.map(async (url) => {
+      if (!(await isImageCached(url))) {
+        try {
+          await cache.add(url);
+        } catch (error) {
+          console.error(`Failed to cache image: ${url}`, error);
+        }
+      }
+    }),
+  );
+}
+
 interface UseImagePreloaderProps {
-  data?: any; // Accepts any data that can contain URLs
+  data?: string[]; // Array of image URLs
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
@@ -14,8 +37,7 @@ export const useImagePreloader = ({
 }: UseImagePreloaderProps = {}) => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [count, setCount] = useState(0);
-  const stateUpdatedRef = useRef(false);
-
+  const preloadedImagesCount = useRef(0);
   // Extract and deduplicate URLs from `data`
   const uniqueUrls = useMemo(() => {
     const urlsFromData = Array.isArray(data)
@@ -24,48 +46,32 @@ export const useImagePreloader = ({
     return Array.from(new Set(urlsFromData)); // Use Set to ensure uniqueness
   }, [data]);
 
-  const updateImageUrls = useCallback((loadedUrls: string[]) => {
-    setImageUrls((prevUrls) => {
-      const uniquePrevUrls = new Set(prevUrls);
-      const uniqueNewUrls = new Set([...prevUrls, ...loadedUrls]);
+  const preloadImages = useCallback(async () => {
+    try {
+      const uncachedUrls: string[] = [];
+      for (const url of uniqueUrls) {
+        if (!(await isImageCached(url))) {
+          uncachedUrls.push(url);
+        }
+      }
 
-      if (uniquePrevUrls.size === uniqueNewUrls.size) return prevUrls;
-
-      return Array.from(uniqueNewUrls); // Convert Set back to array
-    });
-
-    setCount((prevCount) => {
-      const uniqueNewUrls = new Set([...loadedUrls]);
-      return uniqueNewUrls.size !== prevCount ? uniqueNewUrls.size : prevCount;
-    });
-  }, []);
+      if (uncachedUrls.length) {
+        await cacheImages(uncachedUrls);
+        setImageUrls((prev) => [...prev, ...uncachedUrls]);
+        setCount((prev) => prev + uncachedUrls.length);
+        preloadedImagesCount.current += uncachedUrls.length;
+        if (preloadedImagesCount.current === uniqueUrls.length) {
+          onSuccess?.();
+        }
+      }
+    } catch (error: any) {
+      onError?.(error);
+    }
+  }, [uniqueUrls, onSuccess, onError]);
 
   useEffect(() => {
-    // Filter out URLs that are already loaded
-    const urlsToLoad = uniqueUrls.filter((url) => !imageUrls.includes(url));
-    if (!urlsToLoad.length) return;
-
-    const images = urlsToLoad.map((url) => {
-      return new Promise<string>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(url);
-        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-        img.src = url;
-      });
-    });
-
-    Promise.all(images)
-      .then((loadedUrls) => {
-        if (!stateUpdatedRef.current) {
-          updateImageUrls(loadedUrls);
-          onSuccess?.();
-          stateUpdatedRef.current = true;
-        }
-      })
-      .catch((error) => {
-        onError?.(error);
-      });
-  }, [uniqueUrls, imageUrls, updateImageUrls, onSuccess, onError]);
+    preloadImages();
+  }, [preloadImages]);
 
   return { imageUrls, count };
 };
