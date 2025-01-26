@@ -25,7 +25,7 @@ async function cacheImages(urls: string[]) {
 }
 
 interface UseImagePreloaderProps {
-  data?: string[]; // Array of image URLs
+  data?: any; // Array of image URLs
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
@@ -36,7 +36,6 @@ export const useImagePreloader = ({
   onError,
 }: UseImagePreloaderProps = {}) => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [count, setCount] = useState(0);
   const preloadedImagesCount = useRef(0);
   // Extract and deduplicate URLs from `data`
   const uniqueUrls = useMemo(() => {
@@ -58,7 +57,6 @@ export const useImagePreloader = ({
       if (uncachedUrls.length) {
         await cacheImages(uncachedUrls);
         setImageUrls((prev) => [...prev, ...uncachedUrls]);
-        setCount((prev) => prev + uncachedUrls.length);
         preloadedImagesCount.current += uncachedUrls.length;
         if (preloadedImagesCount.current === uniqueUrls.length) {
           onSuccess?.();
@@ -73,5 +71,5 @@ export const useImagePreloader = ({
     preloadImages();
   }, [preloadImages]);
 
-  return { imageUrls, count };
+  return { imageUrls };
 };

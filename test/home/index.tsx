@@ -33,8 +33,7 @@ const testData = {
 const Home: React.FC = () => {
   // Test useImagePreloader with both URLs and data
   const { imageUrls } = useImagePreloader({
-    data: testImages,
-    enablePersistentStorage: true,
+    data: testData,
     onSuccess: () => console.log("All hook"),
     onError: (error) => console.error("Failed to preload images:", error),
   });
