@@ -9,10 +9,8 @@ const About = () => {
         <Link to="/about">About</Link>
       </div>
       <div>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus
-        architecto corporis dolorum eum exercitationem laboriosam nostrum
-        obcaecati, placeat praesentium quaerat quasi repellendus sunt tempora
-        totam vel! Eligendi nesciunt nisi reprehenderit?
+        About page is created to check, if rendering happens again when router
+        changes
       </div>
     </div>
   );

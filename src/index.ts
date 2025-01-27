@@ -9,9 +9,4 @@ export { useImageCache } from "./hooks/useImageCache";
 export { useImageLoad } from "./hooks/useImageLoad";
 
 // Utilities
-export {
-  extractImageUrlsFromData,
-  preloadImages,
-  isHtmlString,
-  extractImageUrlsFromHtml,
-} from "./utils";
+export * from "./utils";

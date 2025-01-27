@@ -1,28 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { extractImageUrlsFromData } from "../utils";
-
-// Utility to check if an image is cached
-async function isImageCached(url: string): Promise<boolean> {
-  const cache = await caches.open("image-preloader-cache");
-  const cachedResponse = await cache.match(url);
-  return !!cachedResponse;
-}
-
-// Utility to cache images
-async function cacheImages(urls: string[]) {
-  const cache = await caches.open("image-preloader-cache");
-  await Promise.all(
-    urls.map(async (url) => {
-      if (!(await isImageCached(url))) {
-        try {
-          await cache.add(url);
-        } catch (error) {
-          console.error(`Failed to cache image: ${url}`, error);
-        }
-      }
-    }),
-  );
-}
+import { useEffect, useCallback, useMemo, useRef } from "react";
+import { cacheImages, extractImageUrlsFromData, isImageCached } from "../utils";
 
 interface UseImagePreloaderProps {
   data?: any; // Array of image URLs
@@ -35,8 +12,9 @@ export const useImagePreloader = ({
   onSuccess,
   onError,
 }: UseImagePreloaderProps = {}) => {
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const preloadedImagesCount = useRef(0);
+  const hasPreloaded = useRef(false); // Ensure preload happens only once
+
   // Extract and deduplicate URLs from `data`
   const uniqueUrls = useMemo(() => {
     const urlsFromData = Array.isArray(data)
@@ -45,31 +23,41 @@ export const useImagePreloader = ({
     return Array.from(new Set(urlsFromData)); // Use Set to ensure uniqueness
   }, [data]);
 
-  const preloadImages = useCallback(async () => {
-    try {
-      const uncachedUrls: string[] = [];
-      for (const url of uniqueUrls) {
-        if (!(await isImageCached(url))) {
-          uncachedUrls.push(url);
-        }
+  // Separate function to determine uncached URLs
+  const getUncachedUrls = useCallback(async (): Promise<string[]> => {
+    const uncachedUrls: string[] = [];
+    for (const url of uniqueUrls) {
+      if (!(await isImageCached(url))) {
+        uncachedUrls.push(url);
       }
+    }
+    return uncachedUrls;
+  }, [uniqueUrls]);
+
+  // Function to preload images
+  const preloadImages = useCallback(async () => {
+    if (hasPreloaded.current) return; // Prevent multiple preloads
+    try {
+      const uncachedUrls = await getUncachedUrls();
 
       if (uncachedUrls.length) {
         await cacheImages(uncachedUrls);
-        setImageUrls((prev) => [...prev, ...uncachedUrls]);
         preloadedImagesCount.current += uncachedUrls.length;
+
         if (preloadedImagesCount.current === uniqueUrls.length) {
+          hasPreloaded.current = true; // Mark preload as complete
           onSuccess?.();
         }
       }
     } catch (error: any) {
       onError?.(error);
     }
-  }, [uniqueUrls, onSuccess, onError]);
+  }, [uniqueUrls, getUncachedUrls, onSuccess, onError, hasPreloaded]);
 
+  // Trigger preload once when component mounts or data changes
   useEffect(() => {
     preloadImages();
   }, [preloadImages]);
 
-  return { imageUrls };
+  return { imageUrls: uniqueUrls };
 };

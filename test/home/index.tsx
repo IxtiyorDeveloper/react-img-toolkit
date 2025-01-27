@@ -34,7 +34,7 @@ const Home: React.FC = () => {
   // Test useImagePreloader with both URLs and data
   const { imageUrls } = useImagePreloader({
     data: testData,
-    onSuccess: () => console.log("All hook"),
+    onSuccess: () => console.log("useImagePreloader Success"),
     onError: (error) => console.error("Failed to preload images:", error),
   });
 
@@ -78,10 +78,10 @@ const Home: React.FC = () => {
 
       {/* ImagePreloader Test */}
       <section className="section">
-        <h2>ImagePreloader Test (URLs + Data)</h2>
+        <h2>ImagePreloader Test</h2>
         <ImagePreloader
           data={testImages} // Data to extract image URLs from
-          onSuccess={() => console.log("All images preloaded successfully")}
+          onSuccess={() => console.log("ImagePreloader Success")}
           onError={(error) => console.error("Failed to preload images:", error)}
         >
           <div className="debug-info">
@@ -103,7 +103,7 @@ const Home: React.FC = () => {
 
       {/* useImagePreloader Test */}
       <section className="section">
-        <h2>useImagePreloader Test (URLs + Data)</h2>
+        <h2>useImagePreloader Test</h2>
         <div className="debug-info">
           <p>Total Images Preloaded: {imageUrls.length}</p>
           <pre style={{ fontSize: "0.8em" }}>

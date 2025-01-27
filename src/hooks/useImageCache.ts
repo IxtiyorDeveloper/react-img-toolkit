@@ -1,37 +1,51 @@
 import { useState, useEffect } from "react";
-
-// Global cache to store loaded image URLs
-const imageCache = new Map<string, boolean>();
+import { isImageCached } from "../utils";
 
 export const useImageCache = ({ src }: { src: string }) => {
-  const [loading, setLoading] = useState(!imageCache.has(src));
-  const [isCached, setIsCached] = useState(imageCache.has(src));
+  const [loading, setLoading] = useState(true);
+  const [isCached, setIsCached] = useState(false);
 
   useEffect(() => {
-    if (imageCache.has(src)) {
-      setLoading(false);
-      setIsCached(true);
-      return;
-    }
+    const checkAndCacheImage = async () => {
+      setLoading(true);
 
-    const img = new Image();
+      // Check if the image is already cached in the browser
+      const browserCached = await isImageCached(src);
+      if (browserCached) {
+        setIsCached(true);
+        setLoading(false);
+        return;
+      }
 
-    img.onload = () => {
-      imageCache.set(src, true);
-      setLoading(false);
-      setIsCached(true);
+      // Load the image and add it to the browser cache
+      const img = new Image();
+
+      img.onload = async () => {
+        setIsCached(true);
+        setLoading(false);
+
+        // Add the loaded image to the browser cache
+        try {
+          const cache = await caches.open("image-preloader-cache");
+          await cache.add(src);
+        } catch (error) {
+          console.warn("Failed to add image to browser cache:", src, error);
+        }
+      };
+
+      img.onerror = () => {
+        setLoading(false);
+      };
+
+      img.src = src;
+
+      return () => {
+        img.onload = null;
+        img.onerror = null;
+      };
     };
 
-    img.onerror = () => {
-      setLoading(false);
-    };
-
-    img.src = src;
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
+    checkAndCacheImage();
   }, [src]);
 
   return {
