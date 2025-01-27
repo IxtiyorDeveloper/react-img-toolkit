@@ -51,7 +51,7 @@ function Gallery() {
 
 #### useImagePreloader
 
-Preload multiple images and track their loading status:
+Preload multiple images and track their loading status. The `onSuccess` callback is executed only when there are uncached image URLs that need to be loaded. If all images are cached, the `onSuccess` callback does not run. This hook checks for browser caching before executing the `onSuccess` callback, ensuring it only runs when necessary. For example, if all images are cached, the `onSuccess` callback will not be executed, but if there are uncached images, the `onSuccess` callback will run after those images are loaded.
 
 ```tsx
 import { useImagePreloader } from 'react-img-toolkit';
@@ -62,7 +62,7 @@ function Gallery() {
     'https://example.com/image1.jpg',
     'https://example.com/image2.jpg'
   ],
-    onSuccess: () => console.log("All images preloaded successfully"),
+    onSuccess: () => console.log("All uncached images preloaded successfully"),
     onError: (error) => console.error("Failed to preload images:", error),
   });
 
@@ -199,7 +199,7 @@ function ImageWithStatus() {
 ```typescript
 
 interface ImagePreloaderProps {
-   data?: Record<string, any>; // Generic object to extract URLs from
+   data?: any; // Any data to extract URLs from
    onSuccess?: () => void; // Callback on successful preload
    onError?: (error: Error) => void; // Callback on preload error
    children: React.ReactNode; // Child components to render
