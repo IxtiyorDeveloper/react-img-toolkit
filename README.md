@@ -4,13 +4,15 @@ A lightweight React library for optimizing image loading through preloading, laz
 
 ## Features
 
-- 🚀 **Image Preloading**: Load images in advance for instant display
+- 🚀 **Image Preloading**: Load images in advance for instant display, especially useful when working with Electron.js
+  since preloaded images will continue displaying even if the internet connection is lost.
 - 🎯 **Lazy Loading**: Load images only when they enter the viewport
 - 💾 **Image Caching**: Cache images for faster subsequent loads
 - 📊 **Status Tracking**: Monitor image loading states
 - 🎨 **TypeScript Support**: Full TypeScript support with type definitions
 - 🪶 **Lightweight**: No external dependencies except React
-- 🖼️ **Custom Configurations**: Supports cross-origin, referrer policies, and direct access to the HTMLImageElement for advanced use cases.
+- 🖼️ **Custom Configurations**: Supports cross-origin, referrer policies, and direct access to the HTMLImageElement for
+  advanced use cases.
 
 ## Installation
 
@@ -183,6 +185,52 @@ function ImageWithStatus() {
 }
 ```
 
+#### useImageFilters
+
+The `useImageFilters` hook allows you to apply various filters to an image. It accepts an object with the following structure:
+
+### Parameters
+
+```typescript
+interface FilterOptions {
+  src: string; // Source image URL
+  filter?: {
+    blur?: number; // Blur effect in pixels (e.g., 5 for '5px'). Recommended range: 0 to 100.
+    brightness?: number; // Brightness percentage (e.g., 100 for normal, 150 for brighter). Recommended range: 0 to 200.
+    contrast?: number; // Contrast percentage (e.g., 100 for normal, 120 for increased contrast). Recommended range: 0 to 200.
+    grayscale?: number; // Grayscale percentage (0 for no effect, 100 for full grayscale). Recommended range: 0 to 100.
+    hueRotate?: number; // Hue rotation in degrees (e.g., 90 for 90 degrees). Recommended range: 0 to 360.
+    invert?: number; // Inversion percentage (0 for no effect, 100 for full inversion). Recommended range: 0 to 100.
+    opacity?: number; // Opacity percentage (0 for fully transparent, 100 for fully opaque). Recommended range: 0 to 100.
+    saturate?: number; // Saturation percentage (100 for normal, 200 for double saturation). Recommended range: 0 to 300.
+    sepia?: number; // Sepia percentage (0 for no effect, 100 for full sepia). Recommended range: 0 to 100.
+  };
+}
+```
+
+### Example Usage
+
+```typescript
+const { filteredImage, loading } = useImageFilters({
+  src: "https://example.com/image.jpg",
+  filter: {
+    blur: 10,
+    brightness: 150,
+    contrast: 120,
+    grayscale: 50,
+    hueRotate: 90,
+    invert: 20,
+    opacity: 80,
+    saturate: 200,
+    sepia: 30,
+  },
+});
+```
+
+### Returns
+- `filteredImage`: A Blob URL of the filtered image.
+- `loading`: A boolean indicating if the filtering is in progress.
+
 ## API Reference
 
 ### ImagePreloader Component
@@ -292,6 +340,35 @@ interface UseImageStatusResult {
 function useImageStatus(
   { src }: UseImageStatusProps
 ): UseImageStatusResult;
+```
+
+### useImageFilters Hook
+
+```typescript
+interface UseImageFiltersProps {
+  src: string;
+  filter?: {
+    blur?: number; // Blur effect in pixels (e.g., 5 for '5px'). Recommended range: 0 to 100.
+    brightness?: number; // Brightness percentage (e.g., 100 for normal, 150 for brighter). Recommended range: 0 to 200.
+    contrast?: number; // Contrast percentage (e.g., 100 for normal, 120 for increased contrast). Recommended range: 0 to 200.
+    grayscale?: number; // Grayscale percentage (0 for no effect, 100 for full grayscale). Recommended range: 0 to 100.
+    hueRotate?: number; // Hue rotation in degrees (e.g., 90 for 90 degrees). Recommended range: 0 to 360.
+    invert?: number; // Inversion percentage (0 for no effect, 100 for full inversion). Recommended range: 0 to 100.
+    opacity?: number; // Opacity percentage (0 for fully transparent, 100 for fully opaque). Recommended range: 0 to 100.
+    saturate?: number; // Saturation percentage (100 for normal, 200 for double saturation). Recommended range: 0 to 300.
+    sepia?: number; // Sepia percentage (0 for no effect, 100 for full sepia). Recommended range: 0 to 100.
+  };
+}
+
+interface UseImageFiltersResult {
+  filteredImage: string | null;
+  loading: boolean;
+}
+
+function useImageFilters({
+  src,
+  filter,
+}: UseImageFiltersProps): UseImageFiltersResult;
 ```
 
 ## Development
