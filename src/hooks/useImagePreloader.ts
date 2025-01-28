@@ -17,9 +17,7 @@ export const useImagePreloader = ({
 
   // Extract and deduplicate URLs from `data`
   const uniqueUrls = useMemo(() => {
-    const urlsFromData = Array.isArray(data)
-      ? data
-      : extractImageUrlsFromData(data);
+    const urlsFromData = extractImageUrlsFromData(data);
     return Array.from(new Set(urlsFromData)); // Use Set to ensure uniqueness
   }, [data]);
 

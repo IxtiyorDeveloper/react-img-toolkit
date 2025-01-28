@@ -57,7 +57,7 @@ Preload multiple images and track their loading status. The `onSuccess` callback
 import { useImagePreloader } from 'react-img-toolkit';
 
 function Gallery() {
-  const { imageUrls, count } = useImagePreloader({
+  const { imageUrls } = useImagePreloader({
     data: [
     'https://example.com/image1.jpg',
     'https://example.com/image2.jpg'
@@ -68,7 +68,7 @@ function Gallery() {
 
   return (
     <div>
-      <p>Loaded {count} images</p>
+      <p>Loaded {imageUrls.length} images</p>
       {imageUrls.map((url, index) => (
         <img key={index} src={url} alt={`Image ${index + 1}`} />
       ))}
