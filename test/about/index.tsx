@@ -1,34 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useImageOptimization } from "../../src/hooks/useImageOptimization";
 import { useImageMetadata } from "../../src/hooks/useImageMetadata";
-import { useImageFilters } from "../../src/hooks/useImageFilters";
+import { useImageOptimizer } from "../../src/hooks/useImageOptimizer";
+import ImageConverter from "./imageConverter";
 
 const About = () => {
+  const [optimizedUrl, setOptimizedUrl] = useState<string>("");
   const imageUrl = "https://picsum.photos/seed/1/800/600"; // Replace with a valid image URL
-  const { optimizedImage, loading: loadingOptimization } = useImageOptimization(
-    imageUrl,
-    { quality: 1 },
-  );
-  const { optimizedImage: om, loading: zxc } = useImageOptimization(imageUrl, {
-    quality: 1,
-  });
+
   const { metadata, loading: loadingMetadata } = useImageMetadata(imageUrl);
 
-  const { filteredImage, loading: loadingFilters } = useImageFilters({
-    src: imageUrl,
-    filter: {
-      blur: 10,
-      brightness: 150,
-      contrast: 120,
-      grayscale: 50,
-      hueRotate: 90,
-      invert: 20,
-      opacity: 80,
-      saturate: 200,
-      sepia: 30,
-    },
-  });
+  const { optimizeImage, loading, error } = useImageOptimizer();
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!event.target.files) return;
+    const file = event.target.files[0];
+
+    const optimizedBlob = await optimizeImage(file, {
+      maxWidth: 800,
+      maxHeight: 800,
+      quality: 1,
+      format: "image/webp",
+      rotate: 0,
+      flipHorizontal: true,
+      keepTransparency: false,
+    });
+
+    if (optimizedBlob) {
+      const url = URL.createObjectURL(optimizedBlob);
+      setOptimizedUrl(url);
+      console.log("Optimized Image URL:", url);
+    }
+  };
 
   return (
     <div>
@@ -37,9 +42,15 @@ const About = () => {
         <Link to="/about">About</Link>
       </div>
       <h1>About</h1>
-      <img src={optimizedImage || imageUrl} alt="Optimized" />
-      <img src={filteredImage || imageUrl} alt="filteredImage" />
-      <p>Image Metadata: {JSON.stringify(metadata)}</p>
+      {/*<img src={filteredImage || imageUrl} alt="filteredImage" />*/}
+      {/*<p>Image Metadata: {JSON.stringify(metadata)}</p>*/}
+      <section>
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+        {loading && <p>Optimizing...</p>}
+        {error && <p>Error: {error}</p>}
+        {optimizedUrl && <img src={optimizedUrl} alt="optimizedImage" />}
+      </section>
+      <ImageConverter />
     </div>
   );
 };

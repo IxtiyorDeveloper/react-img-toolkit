@@ -185,51 +185,192 @@ function ImageWithStatus() {
 }
 ```
 
-#### useImageFilters
+#### useImageConverter
 
-The `useImageFilters` hook allows you to apply various filters to an image. It accepts an object with the following structure:
+Convert images between different formats efficiently.
 
-### Parameters
+```tsx
+import { useImageConverter } from 'react-img-toolkit';
 
-```typescript
-interface FilterOptions {
-  src: string; // Source image URL
-  filter?: {
-    blur?: number; // Blur effect in pixels (e.g., 5 for '5px'). Recommended range: 0 to 100.
-    brightness?: number; // Brightness percentage (e.g., 100 for normal, 150 for brighter). Recommended range: 0 to 200.
-    contrast?: number; // Contrast percentage (e.g., 100 for normal, 120 for increased contrast). Recommended range: 0 to 200.
-    grayscale?: number; // Grayscale percentage (0 for no effect, 100 for full grayscale). Recommended range: 0 to 100.
-    hueRotate?: number; // Hue rotation in degrees (e.g., 90 for 90 degrees). Recommended range: 0 to 360.
-    invert?: number; // Inversion percentage (0 for no effect, 100 for full inversion). Recommended range: 0 to 100.
-    opacity?: number; // Opacity percentage (0 for fully transparent, 100 for fully opaque). Recommended range: 0 to 100.
-    saturate?: number; // Saturation percentage (100 for normal, 200 for double saturation). Recommended range: 0 to 300.
-    sepia?: number; // Sepia percentage (0 for no effect, 100 for full sepia). Recommended range: 0 to 100.
-  };
+function ImageConverter() {
+  const { convert, status } = useImageConverter({
+    src: 'https://example.com/image.jpg',
+    format: 'webp',
+  });
+
+  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'error') return <div>Error: Failed to convert image</div>;
+
+  return (
+    <div>
+      <img src={convert} alt="Converted image" />
+    </div>
+  );
 }
 ```
 
-### Example Usage
+#### useImageOptimizer
 
-```typescript
-const { filteredImage, loading } = useImageFilters({
-  src: "https://example.com/image.jpg",
-  filter: {
-    blur: 10,
-    brightness: 150,
-    contrast: 120,
-    grayscale: 50,
-    hueRotate: 90,
-    invert: 20,
-    opacity: 80,
-    saturate: 200,
-    sepia: 30,
-  },
-});
+The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
+
+### Key Features
+
+1. **Image Resizing**:
+   - Allows you to specify maximum width and height, ensuring that images do not exceed these dimensions.
+
+2. **Quality Control**:
+   - Supports adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Format Handling**:
+   - Detects the MIME type of the image if not specified, supporting formats like JPEG, PNG, WebP, and GIF.
+
+4. **Transformations**:
+   - Provides options to rotate the image and flip it horizontally or vertically.
+
+5. **Transparency Management**:
+   - Option to keep transparency for PNG and WebP formats, or remove it for JPEG and WebP if specified.
+
+6. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the optimization process, ensuring efficient handling of image data.
+
+7. **Error Management**:
+   - Provides error handling to capture and report issues during the optimization process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageOptimizer`:
+
+```tsx
+import { useImageOptimizer } from 'react-img-toolkit';
+
+function ImageOptimizerComponent() {
+  const { optimizeImage, loading, error } = useImageOptimizer();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { maxWidth: 800, maxHeight: 600, quality: 0.8, rotate: 90 };
+      const optimizedBlob = await optimizeImage(file, options);
+      // Handle the optimized image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
 ```
 
-### Returns
-- `filteredImage`: A Blob URL of the filtered image.
-- `loading`: A boolean indicating if the filtering is in progress.
+## useImageConverter
+
+The `useImageConverter` hook provides a way to convert images between different formats while managing loading states and errors. It supports various options for customization during the conversion process.
+
+### Key Features
+
+1. **Format Support**: 
+   - Converts images to the following formats: JPEG, PNG, WebP, and GIF.
+
+2. **Quality Control**:
+   - Allows for adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Transparency Handling**:
+   - Option to keep transparency for PNG and WebP formats.
+   - Removes transparency for JPEG and WebP if specified.
+
+4. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the conversion process, ensuring efficient handling of image data.
+
+5. **Error Management**:
+   - Provides error handling to capture and report issues during the conversion process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageConverter`:
+
+```tsx
+import { useImageConverter } from 'react-img-toolkit';
+
+function ImageConverterComponent() {
+  const { convertImage, loading, error } = useImageConverter();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { format: 'image/webp', quality: 0.8, keepTransparency: true };
+      const convertedBlob = await convertImage(file, options);
+      // Handle the converted image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+## useImageOptimizer
+
+The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
+
+### Key Features
+
+1. **Image Resizing**:
+   - Allows you to specify maximum width and height, ensuring that images do not exceed these dimensions.
+
+2. **Quality Control**:
+   - Supports adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Format Handling**:
+   - Detects the MIME type of the image if not specified, supporting formats like JPEG, PNG, WebP, and GIF.
+
+4. **Transformations**:
+   - Provides options to rotate the image and flip it horizontally or vertically.
+
+5. **Transparency Management**:
+   - Option to keep transparency for PNG and WebP formats, or remove it for JPEG and WebP if specified.
+
+6. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the optimization process, ensuring efficient handling of image data.
+
+7. **Error Management**:
+   - Provides error handling to capture and report issues during the optimization process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageOptimizer`:
+
+```tsx
+import { useImageOptimizer } from 'react-img-toolkit';
+
+function ImageOptimizerComponent() {
+  const { optimizeImage, loading, error } = useImageOptimizer();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { maxWidth: 800, maxHeight: 600, quality: 0.8, rotate: 90 };
+      const optimizedBlob = await optimizeImage(file, options);
+      // Handle the optimized image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
 
 ## API Reference
 
@@ -342,33 +483,43 @@ function useImageStatus(
 ): UseImageStatusResult;
 ```
 
-### useImageFilters Hook
+### useImageConverter Hook
 
 ```typescript
-interface UseImageFiltersProps {
+interface UseImageConverterProps {
   src: string;
-  filter?: {
-    blur?: number; // Blur effect in pixels (e.g., 5 for '5px'). Recommended range: 0 to 100.
-    brightness?: number; // Brightness percentage (e.g., 100 for normal, 150 for brighter). Recommended range: 0 to 200.
-    contrast?: number; // Contrast percentage (e.g., 100 for normal, 120 for increased contrast). Recommended range: 0 to 200.
-    grayscale?: number; // Grayscale percentage (0 for no effect, 100 for full grayscale). Recommended range: 0 to 100.
-    hueRotate?: number; // Hue rotation in degrees (e.g., 90 for 90 degrees). Recommended range: 0 to 360.
-    invert?: number; // Inversion percentage (0 for no effect, 100 for full inversion). Recommended range: 0 to 100.
-    opacity?: number; // Opacity percentage (0 for fully transparent, 100 for fully opaque). Recommended range: 0 to 100.
-    saturate?: number; // Saturation percentage (100 for normal, 200 for double saturation). Recommended range: 0 to 300.
-    sepia?: number; // Sepia percentage (0 for no effect, 100 for full sepia). Recommended range: 0 to 100.
-  };
+  format: string;
 }
 
-interface UseImageFiltersResult {
-  filteredImage: string | null;
+interface UseImageConverterResult {
+  convert: string | null;
+  status: 'idle' | 'loading' | 'loaded' | 'error';
+}
+
+function useImageConverter(
+  { src, format }: UseImageConverterProps
+): UseImageConverterResult;
+```
+
+### useImageOptimizer Hook
+
+```typescript
+interface UseImageOptimizerProps {
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
+  rotate?: number;
+  flipHorizontally?: boolean;
+  flipVertically?: boolean;
+}
+
+interface UseImageOptimizerResult {
+  optimizeImage: (file: File, options: UseImageOptimizerProps) => Promise<Blob | null>;
   loading: boolean;
+  error: Error | null;
 }
 
-function useImageFilters({
-  src,
-  filter,
-}: UseImageFiltersProps): UseImageFiltersResult;
+function useImageOptimizer(): UseImageOptimizerResult;
 ```
 
 ## Development
