@@ -15,6 +15,21 @@ export function useImageOptimizer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Convert to JPEG to ensure it's not JFIF
+  const convertToJPEG = (blob: Blob): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const binaryData = reader.result as ArrayBuffer;
+        const arrayBufferView = new Uint8Array(binaryData);
+        // Recreate the image as JPEG
+        resolve(new Blob([arrayBufferView], { type: "image/jpeg" }));
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(blob);
+    });
+  };
+
   const optimizeImage = useCallback(
     async (file: File, options: ImageOptions = {}): Promise<Blob | null> => {
       setLoading(true);
@@ -89,9 +104,26 @@ export function useImageOptimizer() {
         ctx.drawImage(img, 0, 0, width, height);
         ctx.restore();
 
-        return await new Promise<Blob | null>((resolve) => {
-          canvas.toBlob(resolve, detectedFormat, quality);
-        });
+        // Force conversion to JPEG if format is jpeg
+        let blob: Blob | null = null;
+        if (detectedFormat === "image/jpeg") {
+          blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, "image/jpeg", quality);
+          });
+        } else {
+          // For other formats like PNG or WebP
+          blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, detectedFormat, quality);
+          });
+        }
+
+        // If it's JPEG and you still encounter JFIF issues, force re-encoding
+        if (blob && detectedFormat === "image/jpeg") {
+          const reEncodedBlob = await convertToJPEG(blob);
+          return reEncodedBlob;
+        }
+
+        return blob;
       } catch (err) {
         setError((err as Error).message);
         return null;

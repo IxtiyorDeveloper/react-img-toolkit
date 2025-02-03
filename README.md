@@ -185,30 +185,6 @@ function ImageWithStatus() {
 }
 ```
 
-#### useImageConverter
-
-Convert images between different formats efficiently.
-
-```tsx
-import { useImageConverter } from 'react-img-toolkit';
-
-function ImageConverter() {
-  const { convert, status } = useImageConverter({
-    src: 'https://example.com/image.jpg',
-    format: 'webp',
-  });
-
-  if (status === 'loading') return <div>Loading...</div>;
-  if (status === 'error') return <div>Error: Failed to convert image</div>;
-
-  return (
-    <div>
-      <img src={convert} alt="Converted image" />
-    </div>
-  );
-}
-```
-
 #### useImageOptimizer
 
 The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
@@ -316,7 +292,7 @@ function ImageConverterComponent() {
 }
 ```
 
-## useImageOptimizer
+### useImageOptimizer
 
 The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
 
@@ -367,6 +343,47 @@ function ImageOptimizerComponent() {
       <input type="file" onChange={handleFileChange} />
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+## useImageMeta
+
+The `useImageMeta` hook extracts metadata from an image file, providing information such as dimensions, type, size, and name.
+
+**Key Features**:
+1. **Metadata Extraction**: Retrieves width, height, type, size, and name of the image.
+2. **Error Handling**: Captures errors during file reading and image loading.
+3. **State Management**: Uses React's state to manage metadata and error states.
+
+**Usage Example**:
+```tsx
+import { useImageMeta } from 'react-img-toolkit';
+
+function ImageUploader() {
+  const [file, setFile] = useState<File | null>(null);
+  const { metadata, error } = useImageMeta(file);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {error && <p>Error: {error}</p>}
+      {metadata && (
+        <div>
+          <p>Name: {metadata.name}</p>
+          <p>Type: {metadata.type}</p>
+          <p>Size: {metadata.size} bytes</p>
+          <p>Dimensions: {metadata.width} x {metadata.height}</p>
+        </div>
+      )}
     </div>
   );
 }

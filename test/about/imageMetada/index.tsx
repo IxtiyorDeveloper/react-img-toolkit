@@ -10,7 +10,6 @@ const ImageUploader: React.FC = () => {
       setFile(event.target.files[0]);
     }
   };
-
   return (
     <div>
       <input type="file" accept="image/*" onChange={handleFileChange} />
@@ -33,20 +32,6 @@ const ImageUploader: React.FC = () => {
           <p>
             <strong>Height:</strong> {metadata.height}px
           </p>
-          {metadata.exif && (
-            <>
-              <h4>EXIF Data</h4>
-              <p>
-                <strong>Date Time:</strong> {metadata.exif.dateTime}
-              </p>
-              <p>
-                <strong>GPS Latitude:</strong> {metadata.exif.gpsLatitude}
-              </p>
-              <p>
-                <strong>GPS Longitude:</strong> {metadata.exif.gpsLongitude}
-              </p>
-            </>
-          )}
         </div>
       )}
     </div>
