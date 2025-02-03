@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useImageMetadata } from "../../src/hooks/useImageMetadata";
 import { useImageOptimizer } from "../../src/hooks/useImageOptimizer";
 import ImageConverter from "./imageConverter";
+import ImageUploader from "./imageMetada";
 
 const About = () => {
   const [optimizedUrl, setOptimizedUrl] = useState<string>("");
   const imageUrl = "https://picsum.photos/seed/1/800/600"; // Replace with a valid image URL
-
-  const { metadata, loading: loadingMetadata } = useImageMetadata(imageUrl);
 
   const { optimizeImage, loading, error } = useImageOptimizer();
 
@@ -51,6 +49,7 @@ const About = () => {
         {optimizedUrl && <img src={optimizedUrl} alt="optimizedImage" />}
       </section>
       <ImageConverter />
+      <ImageUploader />
     </div>
   );
 };
