@@ -1,6 +1,6 @@
 {
   "name": "react-img-toolkit",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A lightweight React library for optimizing image loading through preloading, lazy loading, and caching capabilities",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -41,8 +41,6 @@
   },
   "homepage": "https://github.com/IxtiyorDeveloper/react-img-toolkit#readme",
   "dependencies": {
-    "browser-image-compression": "^2.0.2",
-    "exif-js": "^2.3.0",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "react-router-dom": "^7.1.3"
