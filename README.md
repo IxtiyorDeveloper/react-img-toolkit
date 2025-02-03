@@ -539,6 +539,27 @@ interface UseImageOptimizerResult {
 function useImageOptimizer(): UseImageOptimizerResult;
 ```
 
+### useImageMeta Hook
+
+```typescript
+interface UseImageMetaProps {
+  file: File | null; // The image file to extract metadata from
+}
+
+interface UseImageMetaResult {
+  metadata: {
+    width: number;
+    height: number;
+    type: string;
+    size: number;
+    name: string;
+  } | null; // Image metadata or null if not available
+  error: string | null; // Error message if any error occurs
+}
+
+function useImageMeta(file: UseImageMetaProps): UseImageMetaResult;
+```
+
 ## Development
 
 1. Clone the repository:
