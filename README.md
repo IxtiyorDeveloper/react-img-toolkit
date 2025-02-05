@@ -4,13 +4,15 @@ A lightweight React library for optimizing image loading through preloading, laz
 
 ## Features
 
-- 🚀 **Image Preloading**: Load images in advance for instant display
+- 🚀 **Image Preloading**: Load images in advance for instant display, especially useful when working with Electron.js
+  since preloaded images will continue displaying even if the internet connection is lost.
 - 🎯 **Lazy Loading**: Load images only when they enter the viewport
 - 💾 **Image Caching**: Cache images for faster subsequent loads
 - 📊 **Status Tracking**: Monitor image loading states
 - 🎨 **TypeScript Support**: Full TypeScript support with type definitions
 - 🪶 **Lightweight**: No external dependencies except React
-- 🖼️ **Custom Configurations**: Supports cross-origin, referrer policies, and direct access to the HTMLImageElement for advanced use cases.
+- 🖼️ **Custom Configurations**: Supports cross-origin, referrer policies, and direct access to the HTMLImageElement for
+  advanced use cases.
 
 ## Installation
 
@@ -183,6 +185,210 @@ function ImageWithStatus() {
 }
 ```
 
+#### useImageOptimizer
+
+The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
+
+### Key Features
+
+1. **Image Resizing**:
+   - Allows you to specify maximum width and height, ensuring that images do not exceed these dimensions.
+
+2. **Quality Control**:
+   - Supports adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Format Handling**:
+   - Detects the MIME type of the image if not specified, supporting formats like JPEG, PNG, WebP, and GIF.
+
+4. **Transformations**:
+   - Provides options to rotate the image and flip it horizontally or vertically.
+
+5. **Transparency Management**:
+   - Option to keep transparency for PNG and WebP formats, or remove it for JPEG and WebP if specified.
+
+6. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the optimization process, ensuring efficient handling of image data.
+
+7. **Error Management**:
+   - Provides error handling to capture and report issues during the optimization process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageOptimizer`:
+
+```tsx
+import { useImageOptimizer } from 'react-img-toolkit';
+
+function ImageOptimizerComponent() {
+  const { optimizeImage, loading, error } = useImageOptimizer();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { maxWidth: 800, maxHeight: 600, quality: 0.8, rotate: 90 };
+      const optimizedBlob = await optimizeImage(file, options);
+      // Handle the optimized image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+## useImageConverter
+
+The `useImageConverter` hook provides a way to convert images between different formats while managing loading states and errors. It supports various options for customization during the conversion process.
+
+### Key Features
+
+1. **Format Support**: 
+   - Converts images to the following formats: JPEG, PNG, WebP, and GIF.
+
+2. **Quality Control**:
+   - Allows for adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Transparency Handling**:
+   - Option to keep transparency for PNG and WebP formats.
+   - Removes transparency for JPEG and WebP if specified.
+
+4. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the conversion process, ensuring efficient handling of image data.
+
+5. **Error Management**:
+   - Provides error handling to capture and report issues during the conversion process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageConverter`:
+
+```tsx
+import { useImageConverter } from 'react-img-toolkit';
+
+function ImageConverterComponent() {
+  const { convertImage, loading, error } = useImageConverter();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { format: 'image/webp', quality: 0.8, keepTransparency: true };
+      const convertedBlob = await convertImage(file, options);
+      // Handle the converted image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+### useImageOptimizer
+
+The `useImageOptimizer` hook is designed to optimize images by resizing, adjusting quality, and applying transformations such as rotation and flipping. It manages loading states and errors during the optimization process.
+
+### Key Features
+
+1. **Image Resizing**:
+   - Allows you to specify maximum width and height, ensuring that images do not exceed these dimensions.
+
+2. **Quality Control**:
+   - Supports adjustable quality settings for JPEG and WebP formats (from 0 to 1).
+
+3. **Format Handling**:
+   - Detects the MIME type of the image if not specified, supporting formats like JPEG, PNG, WebP, and GIF.
+
+4. **Transformations**:
+   - Provides options to rotate the image and flip it horizontally or vertically.
+
+5. **Transparency Management**:
+   - Option to keep transparency for PNG and WebP formats, or remove it for JPEG and WebP if specified.
+
+6. **Asynchronous Processing**:
+   - Utilizes a `FileReader` to load images and a `canvas` element for the optimization process, ensuring efficient handling of image data.
+
+7. **Error Management**:
+   - Provides error handling to capture and report issues during the optimization process.
+
+### Usage Example
+
+Here’s a simple example of how to use `useImageOptimizer`:
+
+```tsx
+import { useImageOptimizer } from 'react-img-toolkit';
+
+function ImageOptimizerComponent() {
+  const { optimizeImage, loading, error } = useImageOptimizer();
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const options = { maxWidth: 800, maxHeight: 600, quality: 0.8, rotate: 90 };
+      const optimizedBlob = await optimizeImage(file, options);
+      // Handle the optimized image blob (e.g., display it, upload it, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+    </div>
+  );
+}
+```
+
+## useImageMeta
+
+The `useImageMeta` hook extracts metadata from an image file, providing information such as dimensions, type, size, and name.
+
+**Key Features**:
+1. **Metadata Extraction**: Retrieves width, height, type, size, and name of the image.
+2. **Error Handling**: Captures errors during file reading and image loading.
+3. **State Management**: Uses React's state to manage metadata and error states.
+
+**Usage Example**:
+```tsx
+import { useImageMeta } from 'react-img-toolkit';
+
+function ImageUploader() {
+  const [file, setFile] = useState<File | null>(null);
+  const { metadata, error } = useImageMeta(file);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      {error && <p>Error: {error}</p>}
+      {metadata && (
+        <div>
+          <p>Name: {metadata.name}</p>
+          <p>Type: {metadata.type}</p>
+          <p>Size: {metadata.size} bytes</p>
+          <p>Dimensions: {metadata.width} x {metadata.height}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
 ## API Reference
 
 ### ImagePreloader Component
@@ -292,6 +498,66 @@ interface UseImageStatusResult {
 function useImageStatus(
   { src }: UseImageStatusProps
 ): UseImageStatusResult;
+```
+
+### useImageConverter Hook
+
+```typescript
+interface UseImageConverterProps {
+  src: string;
+  format: string;
+}
+
+interface UseImageConverterResult {
+  convert: string | null;
+  status: 'idle' | 'loading' | 'loaded' | 'error';
+}
+
+function useImageConverter(
+  { src, format }: UseImageConverterProps
+): UseImageConverterResult;
+```
+
+### useImageOptimizer Hook
+
+```typescript
+interface UseImageOptimizerProps {
+  maxWidth?: number;
+  maxHeight?: number;
+  quality?: number;
+  rotate?: number;
+  flipHorizontally?: boolean;
+  flipVertically?: boolean;
+}
+
+interface UseImageOptimizerResult {
+  optimizeImage: (file: File, options: UseImageOptimizerProps) => Promise<Blob | null>;
+  loading: boolean;
+  error: Error | null;
+}
+
+function useImageOptimizer(): UseImageOptimizerResult;
+```
+
+### useImageMeta Hook
+
+```typescript
+interface UseImageMetaProps {
+  file: File | null; // The image file to extract metadata from
+}
+
+interface UseImageMetaResult {
+  metadata: {
+    width: number;
+    height: number;
+    type: string;
+    size: number;
+    name: string;
+  } | null; // Image metadata or null if not available
+  error: string | null; // Error message if any error occurs
+}
+
+function useImageMeta(file: UseImageMetaProps): UseImageMetaResult;
 ```
 
 ## Development
