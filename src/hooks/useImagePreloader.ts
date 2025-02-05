@@ -1,5 +1,10 @@
 import { useEffect, useCallback, useMemo, useRef } from "react";
-import { cacheImages, extractImageUrlsFromData, isImageCached } from "../utils";
+import {
+  cacheImages,
+  extractImageUrlsFromData,
+  isImageCached,
+  preloadImages,
+} from "../utils";
 
 interface UseImagePreloaderProps {
   data?: any; // Array of image URLs
@@ -33,13 +38,14 @@ export const useImagePreloader = ({
   }, [uniqueUrls]);
 
   // Function to preload images
-  const preloadImages = useCallback(async () => {
+  const preloadImg = useCallback(async () => {
     if (hasPreloaded.current) return; // Prevent multiple preloads
     try {
       const uncachedUrls = await getUncachedUrls();
 
       if (uncachedUrls.length) {
         await cacheImages(uncachedUrls);
+        await preloadImages(uncachedUrls);
         preloadedImagesCount.current += uncachedUrls.length;
 
         if (preloadedImagesCount.current === uniqueUrls.length) {
@@ -54,8 +60,8 @@ export const useImagePreloader = ({
 
   // Trigger preload once when component mounts or data changes
   useEffect(() => {
-    preloadImages();
-  }, [preloadImages]);
+    preloadImg();
+  }, [preloadImg]);
 
   return { imageUrls: uniqueUrls };
 };
