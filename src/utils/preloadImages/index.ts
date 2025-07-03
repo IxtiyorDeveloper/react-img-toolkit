@@ -1,70 +1,103 @@
-export const preloadImages = async (imageUrls: string[], crossOrigin: HTMLImageElement['crossOrigin'], referrerPolicy: HTMLImageElement['referrerPolicy']): Promise<void> => {
-  // Create a hidden div to append images for Safari
+export const preloadImages = async (
+    imageUrls: string[],
+    crossOrigin: HTMLImageElement['crossOrigin'],
+    referrerPolicy: HTMLImageElement['referrerPolicy']
+): Promise<void> => {
+  console.log('Starting preload for images:', imageUrls);
+
+  // Use off-screen positioning instead of display: none for Safari
   const preloadContainer = document.createElement('div');
-  preloadContainer.style.display = 'none';
+  preloadContainer.style.cssText = `
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: -1;
+  `;
   document.body.appendChild(preloadContainer);
+
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   const promises = imageUrls.map(async (url) => {
     try {
-      // First try with fetch (works well in Safari)
-      const response = await fetch(url, {
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-          'Accept': 'image/webp,image/*,*/*;q=0.8',
-          'Origin': window.location.origin
+      console.log('Preloading image:', url);
+
+      // Try fetch if not Safari
+      if (!isSafari) {
+        try {
+          console.log('Trying fetch for:', url);
+          const response = await fetch(url, {
+            mode: 'cors',
+            credentials: 'include',
+            headers: {
+              'Accept': 'image/webp,image/*,*/*;q=0.8',
+              'Origin': window.location.origin,
+              'Cache-Control': 'no-cache'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`Fetch failed with status: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const image = new Image();
+          image.src = URL.createObjectURL(blob);
+
+          await new Promise<void>((resolve, reject) => {
+            image.onload = () => {
+              URL.revokeObjectURL(image.src);
+              console.log('Fetch-based preload successful:', url);
+              resolve();
+            };
+            image.onerror = () => {
+              URL.revokeObjectURL(image.src);
+              reject(new Error(`Fetch image load failed: ${url}`));
+            };
+          });
+
+          return;
+        } catch (fetchError) {
+          console.warn('Fetch failed, falling back to image element for:', url);
         }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${url}`);
       }
 
-      // Create image element
+      // Fallback or Safari path using <img> element
       const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.referrerPolicy = 'no-referrer';
-      
-      // Add to container
-      preloadContainer.appendChild(img);
-      
-      // Wait for image to load
-      await new Promise((resolve, reject) => {
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Image failed to load: ${url}`));
+      img.crossOrigin = crossOrigin;
+      img.referrerPolicy = referrerPolicy;
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => {
+          console.log('Image loaded via <img> tag:', url);
+          resolve();
+        };
+        img.onerror = (error) => {
+          console.error('Image failed to load via <img> tag:', url, error);
+          reject(new Error(`Image failed: ${url}`));
+        };
         img.src = url;
       });
-      
-      // Remove from container after loading
-      img.remove();
+
+      preloadContainer.appendChild(img);
+      // Optionally remove after load if desired:
+      setTimeout(() => img.remove(), 1000); // slight delay for caching
+
     } catch (error) {
-      console.error(`Failed to preload image: ${url}`, error);
-      // Try with different settings
-      const img = new Image();
-      img.crossOrigin = 'use-credentials';
-      img.referrerPolicy = 'strict-origin-when-cross-origin';
-      
-      // Add to container
-      preloadContainer.appendChild(img);
-      
-      // Wait for image to load
-      await new Promise((resolve, reject) => {
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error(`Image failed to load after retry: ${url}`));
-        img.src = url;
-      });
-      
-      // Remove from container
-      img.remove();
+      console.error('Image preload failed:', url, error);
+      throw error;
     }
   });
 
   try {
     await Promise.all(promises);
+    console.log('✅ All images preloaded successfully');
   } catch (error) {
-    console.error("Some images failed to load.", error);
+    console.error('⚠️ Some images failed to preload:', error);
   } finally {
-    // Clean up the container
     preloadContainer.remove();
+    console.log('🧹 Cleaned up preload container');
   }
 };
