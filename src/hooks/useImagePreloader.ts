@@ -10,12 +10,16 @@ interface UseImagePreloaderProps {
   data?: any; // Array of image URLs
   onSuccess?: () => void;
   onError?: (error: Error) => void;
+  crossOrigin?: HTMLImageElement['crossOrigin'];
+  referrerPolicy?: HTMLImageElement['referrerPolicy'];
 }
 
 export const useImagePreloader = ({
   data = [],
   onSuccess,
   onError,
+  crossOrigin = 'anonymous',
+  referrerPolicy = 'no-referrer'
 }: UseImagePreloaderProps = {}) => {
   const preloadedImagesCount = useRef(0);
   const hasPreloaded = useRef(false); // Ensure preload happens only once
@@ -45,7 +49,7 @@ export const useImagePreloader = ({
 
       if (uncachedUrls.length) {
         await cacheImages(uncachedUrls);
-        await preloadImages(uncachedUrls);
+        await preloadImages(uncachedUrls, crossOrigin, referrerPolicy);
         preloadedImagesCount.current += uncachedUrls.length;
 
         if (preloadedImagesCount.current === uniqueUrls.length) {
@@ -56,7 +60,7 @@ export const useImagePreloader = ({
     } catch (error: any) {
       onError?.(error);
     }
-  }, [uniqueUrls, getUncachedUrls, onSuccess, onError, hasPreloaded]);
+  }, [uniqueUrls, getUncachedUrls, onSuccess, onError, hasPreloaded, crossOrigin, referrerPolicy]);
 
   // Trigger preload once when component mounts or data changes
   useEffect(() => {
