@@ -1,41 +1,90 @@
 import { useState, useEffect } from 'react';
 
-interface UseImagePreloaderOptions {
+type MediaType = 'image' | 'video';
+
+interface UseMediaPreloaderOptions {
   onSuccess?: () => void;
   onError?: (error: Error) => void;
+  mediaType?: MediaType | ((url: string) => MediaType);
 }
 
-export const useImagePreloader = (urls: string[], options: UseImagePreloaderOptions = {}) => {
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+interface UseMediaPreloaderResult {
+  urls: string[];
+  count: number;
+  loaded: boolean;
+  error: Error | null;
+}
+
+export const useImagePreloader = (
+  urls: string[], 
+  options: UseMediaPreloaderOptions = {}
+): UseMediaPreloaderResult => {
+  const [urlsState, setUrlsState] = useState<string[]>([]);
   const [count, setCount] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const getMediaType = (url: string): MediaType => {
+    if (typeof options.mediaType === 'function') {
+      return options.mediaType(url);
+    }
+    return options.mediaType || 'image';
+  };
+
+  const preloadMedia = (url: string): Promise<string> => {
+    const mediaType = getMediaType(url);
+    
+    if (mediaType === 'video') {
+      return new Promise((resolve, reject) => {
+        const video = document.createElement('video');
+        video.preload = 'auto';
+        video.onloadeddata = () => resolve(url);
+        video.onerror = () => reject(new Error(`Failed to load video: ${url}`));
+        video.src = url;
+      });
+    }
+    
+    // Default to image preloading
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(url);
+      img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+      img.src = url;
+    });
+  };
 
   useEffect(() => {
     if (!urls.length) return;
 
-    const images = urls.map(url => {
-      const img = new Image();
-      return new Promise<string>((resolve, reject) => {
-        img.onload = () => resolve(url);
-        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-        img.src = url;
-      });
-    });
+    setLoaded(false);
+    setError(null);
 
-    Promise.all(images)
+    const mediaPromises = urls.map(url => preloadMedia(url));
+
+    Promise.all(mediaPromises)
       .then(loadedUrls => {
-        setImageUrls(loadedUrls);
+        setUrlsState(loadedUrls);
         setCount(loadedUrls.length);
+        setLoaded(true);
         options.onSuccess?.();
       })
-      .catch(error => {
-        options.onError?.(error);
+      .catch(err => {
+        setError(err);
+        options.onError?.(err);
       });
 
     return () => {
-      setImageUrls([]);
+      setUrlsState([]);
       setCount(0);
+      setLoaded(false);
+      setError(null);
     };
-  }, [urls, options.onSuccess, options.onError]);
+  }, [urls, options]);
 
-  return { imageUrls, count };
+  return { 
+    urls: urlsState, 
+    count, 
+    loaded, 
+    error 
+  };
 };
